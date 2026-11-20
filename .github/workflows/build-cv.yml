@@ -24,7 +24,14 @@ jobs:
           docker pull ghcr.io/xu-cheng/texlive-full:latest
           docker run --rm -v "$PWD":/workdir -w /workdir \
             ghcr.io/xu-cheng/texlive-full:latest \
-            latexmk -pdf -file-line-error -interaction=nonstopmode main.tex
+            latexmk -pdf -file-line-error -interaction=nonstopmode main.tex \
+            2>&1 | tee /tmp/latex.log
+          # Surface compiler errors in a readable form when latexmk fails
+          if ! grep -q "^Output written on main.pdf" /tmp/latex.log; then
+            echo "::error::latexmk did not produce main.pdf"
+            grep -n -E "^(!|l\.[0-9]+|.*Error)" /tmp/latex.log | head -40 || tail -80 /tmp/latex.log
+            exit 1
+          fi
 
       - name: Prepare PDF for release branch
         run: |
