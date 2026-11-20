@@ -17,13 +17,18 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Pull the upstream TeX Live image over HTTPS and run latexmk inside it.
+      # This avoids depending on third-party action internals that can change.
       - name: Set up LaTeX
-        uses: xu-cheng/latex-action@v3
-        with:
-          root_file: main.tex
+        run: |
+          docker pull ghcr.io/xu-cheng/texlive-full:latest
+          docker run --rm -v "$PWD":/workdir -w /workdir \
+            ghcr.io/xu-cheng/texlive-full:latest \
+            latexmk -pdf -file-line-error -interaction=nonstopmode main.tex
 
       - name: Prepare PDF for release branch
         run: |
+          ls -l main.pdf
           mkdir -p /tmp/cv_release
           cp main.pdf /tmp/cv_release/main.pdf
 
