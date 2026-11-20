@@ -67,3 +67,9 @@ latex.out/
 
 *.pdf
 prompts.txt
+
+# local debug scratch
+*.json
+logs*.zip
+latex_out.log
+main.log
