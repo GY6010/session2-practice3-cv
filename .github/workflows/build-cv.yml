@@ -22,10 +22,15 @@ jobs:
       - name: Set up LaTeX
         run: |
           docker pull ghcr.io/xu-cheng/texlive-full:latest
+          set -x
           docker run --rm -v "$PWD":/workdir -w /workdir \
             ghcr.io/xu-cheng/texlive-full:latest \
             latexmk -pdf -file-line-error -interaction=nonstopmode main.tex \
             2>&1 | tee /tmp/latex.log
+          echo "===== latex.log tail ====="
+          tail -60 /tmp/latex.log
+          echo "===== files ====="
+          ls -la
           # Surface compiler errors in a readable form when latexmk fails
           if ! grep -q "^Output written on main.pdf" /tmp/latex.log; then
             echo "::error::latexmk did not produce main.pdf"
