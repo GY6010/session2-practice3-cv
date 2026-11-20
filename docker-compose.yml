@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  cv-builder:
+    build: .
+    volumes:
+      - .:/latex
+    # pdflatex alone does not resolve cross-references / icons reliably,
+    # so run latexmk which repeats passes as needed.
+    command: latexmk -pdf -interaction=nonstopmode -file-line-error main.tex
+    # Override command when using VSCode devcontainer
+    stdin_open: true
+    tty: true
