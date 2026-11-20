@@ -18,29 +18,49 @@ jobs:
           fetch-depth: 0
 
       # Compile with upstream TeX Live image over HTTPS (no third-party action internals).
-      # fail-fast: false so we always get the log even when compilation breaks.
+      # NOTE: latexmk is allowed to fail here; we always publish the logs so failures are debuggable.
       - name: Set up LaTeX
-        id: latex
         run: |
-          set -o pipefail
           docker pull ghcr.io/xu-cheng/texlive-full:latest
           docker run --rm -v "$PWD":/workdir -w /workdir \
             ghcr.io/xu-cheng/texlive-full:latest \
-            latexmk -pdf -file-line-error -interaction=nonstopmode main.tex 2>&1 | tee latex_out.log
-          echo "=== latex_out.log ==="
-          cat latex_out.log
-          echo "=== main.log (errors) ==="
-          [ -f main.log ] && grep -n -A4 -E '^!|^[^ ]*main\.tex:[0-9]+:' main.log | head -100 || echo "(no main.log)"
+            latexmk -pdf -file-line-error -interaction=nonstopmode main.tex > latex_out.log 2>&1 || true
+          echo "=== exit status captured, showing logs ==="
+          tail -120 latex_out.log
+          echo "=== main.log errors ==="
+          if [ -f main.log ]; then
+            grep -n -A4 -E '^!|^[^ ]*main\.tex:[0-9]+:' main.log | head -120 || true
+          else
+            echo "(no main.log produced)"
+          fi
+          echo "=== ls ==="
+          ls -la
 
-      - name: Upload log artifact
+      # Publish the raw logs to a dedicated branch so they can be read without auth.
+      - name: Publish logs to ci-logs branch
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: latex-logs
-          path: |
-            latex_out.log
-            main.log
-          if-no-files-found: warn
+        run: |
+          mkdir -p /tmp/logs
+          cp latex_out.log /tmp/logs/ 2>/dev/null || true
+          cp main.log /tmp/logs/ 2>/dev/null || true
+          cp main.pdf /tmp/logs/ 2>/dev/null || true
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git stash -u >/dev/null 2>&1 || true
+          git checkout --orphan ci_logs_tmp
+          git rm -rf --cached . >/dev/null 2>&1 || true
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name '.' -exec rm -rf {} +
+          cp /tmp/logs/* . 2>/dev/null || true
+          git add -A
+          git commit -m "ci logs for run ${{ github.run_number }}" || echo "nothing to commit"
+          git push -f origin ci_logs_tmp:ci-logs
+
+      - name: Fail if PDF missing
+        run: |
+          if [ ! -f main.pdf ]; then
+            echo "::error::main.pdf was not produced - see ci-logs branch (latex_out.log / main.log)"
+            exit 1
+          fi
 
       - name: Prepare PDF for release branch
         run: |
@@ -61,7 +81,7 @@ jobs:
 
       - name: Create GitHub Release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create "v${{ github.run_number }}" \
             --title "Release v${{ github.run_number }}" \
