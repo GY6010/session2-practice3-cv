@@ -17,26 +17,30 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Pull the upstream TeX Live image over HTTPS and run latexmk inside it.
-      # This avoids depending on third-party action internals that can change.
+      # Compile with upstream TeX Live image over HTTPS (no third-party action internals).
       - name: Set up LaTeX
         run: |
           docker pull ghcr.io/xu-cheng/texlive-full:latest
-          set -x
           docker run --rm -v "$PWD":/workdir -w /workdir \
             ghcr.io/xu-cheng/texlive-full:latest \
-            latexmk -pdf -file-line-error -interaction=nonstopmode main.tex \
-            2>&1 | tee /tmp/latex.log
+            latexmk -pdf -file-line-error -interaction=nonstopmode main.tex 2>&1 | tee /tmp/latex.log || true
+
           echo "===== latex.log tail ====="
-          tail -60 /tmp/latex.log
+          tail -80 /tmp/latex.log
+          echo "===== main.log errors ====="
+          if [ -f main.log ]; then
+            grep -n -A3 -E '^!|^\./main\.tex:[0-9]+:' main.log | head -80 || echo "(no matching error lines)"
+          else
+            echo "(main.log not created)"
+          fi
           echo "===== files ====="
           ls -la
-          # Surface compiler errors in a readable form when latexmk fails
-          if ! grep -q "^Output written on main.pdf" /tmp/latex.log; then
-            echo "::error::latexmk did not produce main.pdf"
-            grep -n -E "^(!|l\.[0-9]+|.*Error)" /tmp/latex.log | head -40 || tail -80 /tmp/latex.log
+
+          if [ ! -f main.pdf ]; then
+            echo "::error::main.pdf was not produced - see the LaTeX log above"
             exit 1
           fi
+          echo "main.pdf OK"
 
       - name: Prepare PDF for release branch
         run: |
@@ -49,7 +53,6 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git checkout --orphan temp_release
-          # Remove all files and folders except .git
           find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name '.' -exec rm -rf {} +
           cp /tmp/cv_release/main.pdf .
           git add main.pdf
