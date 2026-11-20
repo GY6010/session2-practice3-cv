@@ -18,29 +18,29 @@ jobs:
           fetch-depth: 0
 
       # Compile with upstream TeX Live image over HTTPS (no third-party action internals).
+      # fail-fast: false so we always get the log even when compilation breaks.
       - name: Set up LaTeX
+        id: latex
         run: |
+          set -o pipefail
           docker pull ghcr.io/xu-cheng/texlive-full:latest
           docker run --rm -v "$PWD":/workdir -w /workdir \
             ghcr.io/xu-cheng/texlive-full:latest \
-            latexmk -pdf -file-line-error -interaction=nonstopmode main.tex 2>&1 | tee /tmp/latex.log || true
+            latexmk -pdf -file-line-error -interaction=nonstopmode main.tex 2>&1 | tee latex_out.log
+          echo "=== latex_out.log ==="
+          cat latex_out.log
+          echo "=== main.log (errors) ==="
+          [ -f main.log ] && grep -n -A4 -E '^!|^[^ ]*main\.tex:[0-9]+:' main.log | head -100 || echo "(no main.log)"
 
-          echo "===== latex.log tail ====="
-          tail -80 /tmp/latex.log
-          echo "===== main.log errors ====="
-          if [ -f main.log ]; then
-            grep -n -A3 -E '^!|^\./main\.tex:[0-9]+:' main.log | head -80 || echo "(no matching error lines)"
-          else
-            echo "(main.log not created)"
-          fi
-          echo "===== files ====="
-          ls -la
-
-          if [ ! -f main.pdf ]; then
-            echo "::error::main.pdf was not produced - see the LaTeX log above"
-            exit 1
-          fi
-          echo "main.pdf OK"
+      - name: Upload log artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: latex-logs
+          path: |
+            latex_out.log
+            main.log
+          if-no-files-found: warn
 
       - name: Prepare PDF for release branch
         run: |
