@@ -3,11 +3,7 @@
 \moderncvcolor{blue}
 \usepackage[dvipsnames,svgnames]{xcolor}
 
-\usepackage[normalem]{ulem}
-\useunder{\uline}{\ul}{}
-\usepackage[scale=0.78]{geometry}
-\usepackage{CJKutf8}
-\usepackage{fontawesome5}
+\usepackage[scale=0.80]{geometry}
 \usepackage{lmodern}
 \usepackage[scaled]{helvet}
 
@@ -24,16 +20,23 @@
 \photo[55pt][0.0pt]{./img/avatar.jpg}
 
 \begin{document}
-\begin{CJK*}{UTF8}{gbsn}
 
 \makecvtitle
+
+%----------------------------------------------------------------------------------------
+%   PROFILE
+%----------------------------------------------------------------------------------------
+\section{Profile}
+\cvitem{Name}{Gao Yan}
+\cvitem{Gender}{Female}
+\cvitem{Born}{August 13, 2004}
+\cvitem{English}{CET-6}
 
 %----------------------------------------------------------------------------------------
 %   EDUCATION
 %----------------------------------------------------------------------------------------
 \section{Education}
-\cventry{}{B.Eng. in Electronic Information}{Shanghai University}{Shanghai}{China}{}
-\cvitem{}{\textbf{Current:} Master's program in Data Engineering (2026 Fall cohort)}
+\cventry{}{Shanghai University}{Electronic Information}{Shanghai}{China}{}
 
 %----------------------------------------------------------------------------------------
 %   PROJECT EXPERIENCE
@@ -42,10 +45,10 @@
 \cventry{2024}{Siemens Cup -- China Intelligent Manufacturing Challenge}{Team Member}{East China Division}{}{%
 \textbf{Project:} Built an unmanned production line on S7-1200 PLCs over PROFINET, linking six
 stations (feeding, machining, assembly, inspection, sorting, storage) into a single automated
-material flow, with stable operation and full-process visualization.\\[2pt]
+material flow, with stable operation and full-process visualization.\\[3pt]
 \textbf{Role:} Developed and commissioned the WinCC HMI: I/O and tag planning, PLC signal
 acquisition, live line status, tiered fault alarms and notifications; debugged in three layers
-(hardware / network / HMI) to isolate signal-chain faults.\\[2pt]
+(hardware / network / HMI) to isolate signal-chain faults.\\[3pt]
 \textbf{Outcome:} Delivered the HMI visualization and alarm system and completed the
 PLC--WinCC--station hardware link, enabling unmanned operation; \textbf{2nd Prize}, 2024 Siemens
 Cup (discrete-industry automation).}
@@ -55,7 +58,7 @@ Cup (discrete-industry automation).}
 %----------------------------------------------------------------------------------------
 \section{Honors \& Awards}
 \cvitem{Summary}{2 provincial awards, 3 university-level awards, 7 university scholarships}
-\cvlistitem{2nd Prize, 2024 Siemens Cup -- China Intelligent Manufacturing Challenge (Discrete Industry Automation)}
+\cvlistitem{2nd Prize, 2024 Siemens Cup, Discrete Industry Automation}
 \cvlistitem{3rd Prize, 7th University Industrial Automation Challenge}
 \cvlistitem{3rd Prize, 2023 Jiangsu Higher Mathematics Competition (Level 2)}
 \cvlistitem{2023 \& 2024 University Merit Student}
@@ -65,10 +68,9 @@ Cup (discrete-industry automation).}
 %   SKILLS
 %----------------------------------------------------------------------------------------
 \section{Skills}
-\cvitem{Programming}{C, with working knowledge of Python for data processing}
+\cvitem{Programming}{C, with working knowledge of Python}
 \cvitem{Tools}{MATLAB/Simulink, TIA Portal, WinCC, Proteus, Microsoft Office}
-\cvitem{Languages}{Chinese (native), English (CET-6, able to read technical documentation independently)}
-\cvitem{Coursework}{Mathematics, electronics, automatic control, PLC and industrial networks}
+\cvitem{Languages}{Chinese (native); English (CET-6, able to read technical documentation independently)}
 
 %----------------------------------------------------------------------------------------
 %   EXTRACURRICULAR
@@ -82,9 +84,8 @@ Cup (discrete-industry automation).}
 %----------------------------------------------------------------------------------------
 \section{Self-Assessment}
 \cvitem{}{Solid foundation in mathematics and electronics, with a provincial award in the Jiangsu
-Higher Mathematics Competition. I learn principles by building and locate faults through
-debugging, and I am strongly aligned with project-based, practice- and systems-oriented
-engineering training.}
+Higher Mathematics Competition; able to write C programs and familiar with MATLAB/Simulink,
+TIA Portal, Proteus and Office; I learn principles by building and locate faults through debugging.
+Strongly aligned with project-based, practice- and systems-oriented engineering training.}
 
-\end{CJK*}
 \end{document}
